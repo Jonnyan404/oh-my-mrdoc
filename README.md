@@ -1,6 +1,6 @@
 # oh-my-mrdoc
 
-mrdoc 一键部署脚本
+mrdoc 一键部署脚本,目前功能还不是很完善,待后续更新!
 
 - [x] 已测试 centos7.x
 - [ ] Ubuntu待测试
@@ -20,3 +20,9 @@ curl https://gitee.com/jonnyan404/oh-my-mrdoc/raw/main/mrdoc-install.sh | bash
 # FAQ
 
 有问题,请反馈到 issue 里!
+
+
+
+## 更新日志
+
+- 2021年4月16日 21:11:40 首次更新!
