@@ -19,4 +19,4 @@ curl https://gitee.com/jonnyan404/oh-my-mrdoc/raw/main/mrdoc-install.sh | bash
 
 # FAQ
 
-有问题,请支持反馈到 issue 里!
+有问题,请反馈到 issue 里!
