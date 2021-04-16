@@ -180,7 +180,7 @@ main(){
             if nginx -t ;then
                 nginx -s reload
             else
-                colorEcho  ${YELLOW} "Please check your nginx configuration file"
+                colorEcho  ${RED} "Please check your nginx configuration file"
             fi
             colorEcho  ${RED}  "$(cat /opt/jonnyan404/pwdinfo.log),Password is saved in /opt/jonnyan404/pwdinfo.log"
         fi
