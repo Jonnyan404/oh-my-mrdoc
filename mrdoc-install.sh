@@ -40,16 +40,9 @@ installdepend(){
         yum -y  install epel-release git pwgen python3 python3-pip nginx 
     else
         colorEcho ${RED} "The system package manager tool isn't APT or YUM, please install depend manually."
-    fi
-    return 0
-
-
-    getPMT
-    if [[ $? -eq 1 ]]; then
-        colorEcho ${RED} "The system package manager tool isn't APT or YUM, please install depend manually."
         return 1
     fi
-
+    return 0
 }
 
 installmrdoc(){
@@ -111,7 +104,8 @@ server {
     # the domain name it will serve for
     server_name _; # substitute your machine's IP address or FQDN
     charset     utf-8;
-
+    access_log /opt/jonnyan404/mrdoc-nginx-access.log;
+    error_log  /opt/jonnyan404/mrdoc-nginx-error.log;
     # max upload size
     client_max_body_size 75M;   # adjust to taste
 
@@ -178,13 +172,19 @@ stop(){
 }
 
 main(){
-    installdepend
-    installmrdoc
-    initconfig
-    if start;then
-    colorEcho  ${RED}  "$(cat /opt/jonnyan404/pwdinfo.log),Password is saved in /opt/jonnyan404/pwdinfo.log"
+    if installdepend ;then
+        installmrdoc
+        initconfig
+        if start;then
+            systemctl start nginx
+            if nginx -t ;then
+                nginx -s reload
+            else
+                colorEcho  ${YELLOW} "Please check your nginx configuration file"
+            fi
+            colorEcho  ${RED}  "$(cat /opt/jonnyan404/pwdinfo.log),Password is saved in /opt/jonnyan404/pwdinfo.log"
+        fi
     fi
-
 }
 
 main
