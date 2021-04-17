@@ -182,7 +182,7 @@ main(){
             else
                 colorEcho  ${RED} "Please check your nginx configuration file"
             fi
-            colorEcho  ${RED}  "$(cat /opt/jonnyan404/pwdinfo.log),Password is saved in /opt/jonnyan404/pwdinfo.log"
+            colorEcho  ${GREEN}  "$(cat /opt/jonnyan404/pwdinfo.log),Password is saved in /opt/jonnyan404/pwdinfo.log"
         fi
     fi
 }
