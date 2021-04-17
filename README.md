@@ -3,7 +3,7 @@
 mrdoc 一键部署脚本,目前功能还不是很完善,待后续更新!
 
 - [x] 采用 `uwsgi/nginx` 方式部署
-- [x] centos7.x 测试通过
+- [x] centos7.x / debian 10 测试通过
 - [ ] Ubuntu待测试
 
 # 使用教程
