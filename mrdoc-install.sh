@@ -38,6 +38,8 @@ installdepend(){
         SOFTWARE_UPDATED=1
         fi
         yum -y  install epel-release git pwgen python3 python3-pip nginx 
+        wget -O /tmp/sqlite.rpm https://kojipkgs.fedoraproject.org//packages/sqlite/3.8.11/1.fc21/x86_64/sqlite-3.8.11-1.fc21.x86_64.rpm
+        yum install /tmp/sqlite.rpm
     else
         colorEcho ${RED} "The system package manager tool isn't APT or YUM, please install depend manually."
         return 1
@@ -52,8 +54,6 @@ installmrdoc(){
 
     mkdir -p ${MRDOCDIR}
     touch ${MRDOCDIR}/pwdinfo.log
-    wget -O ${MRDOCDIR}/sqlite.rpm https://kojipkgs.fedoraproject.org//packages/sqlite/3.8.11/1.fc21/x86_64/sqlite-3.8.11-1.fc21.x86_64.rpm
-    yum install sqlite.rpm
     cd ${MRDOCDIR} && git clone https://gitee.com/zmister/MrDoc.git
     pip3 install uwsgi
     python3 -m venv ${MRDOCDIR}/mrdoc_env
