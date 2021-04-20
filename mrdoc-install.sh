@@ -29,7 +29,7 @@ installdepend(){
         apt-get -qq update
         SOFTWARE_UPDATED=1
         fi
-        apt-get -y  install git pwgen python3 python3 python3-pip nginx 
+        apt-get -y  install git pwgen python3 python3-dev python3-pip nginx 
 
     elif [[ -n $(command -v yum) ]]; then
         if [[ $SOFTWARE_UPDATED -eq 0 ]]; then
