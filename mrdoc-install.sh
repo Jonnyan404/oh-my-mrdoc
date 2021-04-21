@@ -174,12 +174,12 @@ stop(){
 }
 
 main(){
-    nginxcount=$(ps -ef|grep nginx|wc -l)
+    nginxcount=$(pgrep -cf nginx)
     if installdepend ;then
         installmrdoc
         initconfig
         if start;then
-            if [ $nginxcount -eq 1 ];then
+            if [ "$nginxcount" -eq 0 ];then
                 if systemctl start nginx ;then
                     cp /opt/jonnyan404/mrdoc_nginx_jonnyan404.conf /etc/nginx/conf.d/
                     if nginx -t ;then
