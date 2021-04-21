@@ -97,8 +97,8 @@ vacuum          = true
 EOF
     fi
 ### Generate nginx configuration file ###
-    if [[ ! -f "/opt/jonnyan404/mrdoc_nginx.conf" ]]; then
-cat >"/etc/nginx/conf.d/mrdoc_nginx.conf"<<EOF
+    if [[ ! -f "/opt/jonnyan404/mrdoc_nginx_jonnyan404.conf" ]]; then
+cat >"/opt/jonnyan404/mrdoc_nginx_jonnyan404.conf"<<EOF
 server {
     # the port your site will be served on
     listen      ${port:-10086};
@@ -161,6 +161,7 @@ EOF
 }
 
 start(){
+    systemctl daemon-reload
     if systemctl start mrdoc;then
         return 0
     else
@@ -173,15 +174,24 @@ stop(){
 }
 
 main(){
+    nginxcount=$(ps -ef|grep nginx|wc -l)
     if installdepend ;then
         installmrdoc
         initconfig
         if start;then
-            systemctl start nginx
-            if nginx -t ;then
-                nginx -s reload
+            if [ $nginxcount -eq 1 ];then
+                if systemctl start nginx ;then
+                    cp /opt/jonnyan404/mrdoc_nginx_jonnyan404.conf /etc/nginx/conf.d/
+                    if nginx -t ;then
+                        nginx -s reload
+                    else
+                        colorEcho  ${RED} "Please check your nginx configuration file"
+                    fi
+                else
+                    colorEcho  ${RED} "nginx failed to start!!!###Please check your nginx process###"
+                fi
             else
-                colorEcho  ${RED} "Please check your nginx configuration file"
+                colorEcho  ${YELLOW} "Please manually copy the /opt/jonnyan404/mrdoc_nginx_jonnyan404.conf file to your nginx configuration"
             fi
             colorEcho  ${GREEN}  "$(cat /opt/jonnyan404/pwdinfo.log),Password is saved in /opt/jonnyan404/pwdinfo.log"
         fi
