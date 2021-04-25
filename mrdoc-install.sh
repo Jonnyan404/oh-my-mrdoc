@@ -120,8 +120,8 @@ server {
     # the domain name it will serve for
     server_name _; # substitute your machine's IP address or FQDN
     charset     utf-8;
-    access_log /opt/jonnyan404/mrdoc-nginx-access.log;
-    error_log  /opt/jonnyan404/mrdoc-nginx-error.log;
+    access_log /var/log/nginx/mrdoc-nginx-access.log;
+    error_log  /var/log/nginx/mrdoc-nginx-error.log;
     # max upload size
     client_max_body_size 75M;   # adjust to taste
 
