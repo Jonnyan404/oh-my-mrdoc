@@ -38,9 +38,24 @@ installdepend(){
         SOFTWARE_UPDATED=1
         fi
         yum -y  install epel-release git pwgen python3 python3-devel python3-pip nginx 
-        yum -y remove  sqlite-devel
-        wget -O /tmp/sqlite.rpm https://kojipkgs.fedoraproject.org//packages/sqlite/3.8.11/1.fc21/x86_64/sqlite-3.8.11-1.fc21.x86_64.rpm
-        yum -y install /tmp/sqlite.rpm
+        sqliteversion=$(sqlite3 -version|awk '{print $1}')
+        if [ "$sqliteversion" -le 3.8.3 ];then
+            yum -y remove  sqlite-devel
+            wget -O /tmp/sqlite.rpm https://kojipkgs.fedoraproject.org//packages/sqlite/3.8.11/1.fc21/x86_64/sqlite-3.8.11-1.fc21.x86_64.rpm
+            if ! yum -y install /tmp/sqlite.rpm ;then
+                wget -O /tmp/ https://www.sqlite.org/2020/sqlite-autoconf-3340000.tar.gz
+                tar zxvf /tmp/sqlite-autoconf-3340000.tar.gz
+                cd /tmp/sqlite-autoconf-3340000 || exit \
+                && ./configure --prefix=/usr/local \
+                && make && make install
+                mv /usr/bin/sqlite3  /usr/bin/sqlite3_backup
+                ln -s /usr/local/bin/sqlite3   /usr/bin/sqlite3
+                echo "/usr/local/lib" > /etc/ld.so.conf.d/sqlite3.conf
+                ldconfig
+                sqlite3 -version
+            fi
+
+        fi    
     else
         colorEcho ${RED} "The system package manager tool isn't APT or YUM, please install depend manually."
         return 1
