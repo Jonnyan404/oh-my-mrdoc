@@ -178,7 +178,7 @@ EOF
 
 start(){
     systemctl daemon-reload
-    if systemctl start mrdoc;then
+    if systemctl restart mrdoc;then
         return 0
     else
         return 1
@@ -192,24 +192,32 @@ stop(){
 main(){
     nginxcount=$(pgrep -cf nginx)
     if installdepend ;then
+        colorEcho  ${BLUE}  "###安装mrdoc中...###"
         installmrdoc
+        colorEcho  ${BLUE}  "###初始化配置中...###"
         initconfig
+        colorEcho  ${BLUE}  "###启动mrdoc...###"
         if start;then
             if [ "$nginxcount" -eq 0 ];then
                 if systemctl start nginx ;then
                     cp /opt/jonnyan404/mrdoc_nginx_jonnyan404.conf /etc/nginx/conf.d/
                     if nginx -t ;then
                         nginx -s reload
+                        colorEcho  ${BLUE}  "###重载nginx配置成功...###"
                     else
+                        colorEcho  ${RED}  "###nginx配置有问题,请检查...###"
                         colorEcho  ${RED} "Please check your nginx configuration file"
                     fi
                 else
+                    colorEcho  ${RED}  "###nginx启动失败,请检查...###"
                     colorEcho  ${RED} "nginx failed to start!!!###Please check your nginx process###"
                 fi
             else
+                colorEcho  ${YELLOW}  "###(新环境多次执行命令,请忽略~)已有nginx进程在运行,请手动复制/opt/jonnyan404/mrdoc_nginx_jonnyan404.conf到你的nginx配置目录!...###"
                 colorEcho  ${YELLOW} "Please manually copy the /opt/jonnyan404/mrdoc_nginx_jonnyan404.conf file to your nginx configuration"
             fi
             colorEcho  ${GREEN}  "$(cat /opt/jonnyan404/pwdinfo.log),Password is saved in /opt/jonnyan404/pwdinfo.log"
+            colorEcho  ${GREEN}  "如果上方没显示账号密码,就是部署失败,请进群反馈!"
         fi
     fi
 }
