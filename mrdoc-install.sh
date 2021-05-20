@@ -39,7 +39,8 @@ installdepend(){
         fi
         yum -y  install epel-release git pwgen python3 python3-devel python3-pip nginx 
         sqliteversion=$(sqlite3 -version|awk '{print $1}')
-        if [ "$sqliteversion" -le 3.8.3 ];then
+        res=$(expr "$sqliteversion" \> 3.8.3)
+        if [ ${res} -eq 0 ];then
             yum -y remove  sqlite-devel
             wget -O /tmp/sqlite.rpm https://kojipkgs.fedoraproject.org//packages/sqlite/3.8.11/1.fc21/x86_64/sqlite-3.8.11-1.fc21.x86_64.rpm
             if ! yum -y install /tmp/sqlite.rpm ;then
