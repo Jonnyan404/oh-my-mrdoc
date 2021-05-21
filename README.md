@@ -1,32 +1,60 @@
 # oh-my-mrdoc
 
-mrdoc 一键部署脚本,目前功能还不是很完善,待后续更新!
+mrdoc 一键部署脚本
 
-- [x] 采用 `uwsgi/nginx` 方式部署
-- [x] centos7.x / debian 10 测试通过
-- [ ] Ubuntu待测试
+本项目是支持 [州的先生-mrdoc项目-GitHub](https://github.com/zmister2016/MrDoc) - [州的先生-mrdoc项目-Gitee](https://gitee.com/zmister/MrDoc) 在Linux下的一键部署脚本。
+
+- [x] 采用 uwsgi/nginx 方式部署
+- [x]  centos7.x / debian 10(树莓派3B) 测试通过
+- [ ] Ubuntu 系列待测试
 
 # 使用教程
 
-在终端中运行以下命令 **(二选一)** 即可,可重复执行.
+> 使用前需知：由于目前脚本部署还处于早期阶段，为保证成功率，请尽量使用新机器！！！
+> 当然部署了其它服务的机器也可以，需要注意端口占用问题！
+
+在终端中运行以下命令 (二选一) 即可,可重复执行.
 
 默认 nginx 端口为 10086,可先执行 `export port=xxx` 来自定义端口,或者后续自行更改 `/etc/nginx/conf.d/mrdoc_nginx.conf` 文件.
 
 ```bash
-# github 链接
+### github 链接
 curl https://raw.githubusercontent.com/Jonnyan404/oh-my-mrdoc/main/mrdoc-install.sh | bash
 
-# gitee 链接
+### gitee 链接
 curl https://gitee.com/jonnyan404/oh-my-mrdoc/raw/main/mrdoc-install.sh | bash
 ```
 
+部署成功后，打开 `http://IP:10086` 即可访问，用户密码请查看脚本提示！
+
+# 管理mrdoc
+
+```
+# 启动mrdoc
+systemctl start mrdoc
+# 停止mrdoc
+systemctl stop mrdoc
+# 重启mrdoc
+systemctl restart mrdoc
+```
 
 # FAQ
 
-有问题,请反馈到 issue 里!
+有任何问题,请反馈到 issue 里!
 
+- gitee issue:<https://gitee.com/jonnyan404/oh-my-mrdoc/issues>
+- github issue:<https://github.com/Jonnyan404/oh-my-mrdoc/issues>
+- QQ群：`735507293`
+- telegram群：<https://t.me/mrdocfun>
 
+# TODO
 
-## 更新日志
+- [ ] 增加脚本 ·安装/更新/卸载· 功能
+- [ ] 增加脚本在线自更新
+- [ ] 增加脚本管理（启动/停止/重启） mrdoc
 
-- 2021年4月16日 21:11:40 首次更新!
+# 更新日志
+
+2021年5月20日 22:00:00 优化安装提示
+
+2021年4月16日 21:11:40 首次更新!
