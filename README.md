@@ -45,7 +45,7 @@ systemctl restart mrdoc
 - gitee issue:<https://gitee.com/jonnyan404/oh-my-mrdoc/issues>
 - github issue:<https://github.com/Jonnyan404/oh-my-mrdoc/issues>
 - QQ群：`735507293`
-- telegram群：<https://t.me/mrdocfun>
+- 电报群：<https://t.me/mrdocfun>
 
 # TODO
 
