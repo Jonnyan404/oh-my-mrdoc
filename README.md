@@ -4,7 +4,7 @@ mrdoc 一键部署脚本
 
 本项目是支持 [州的先生-mrdoc项目-GitHub](https://github.com/zmister2016/MrDoc) - [州的先生-mrdoc项目-Gitee](https://gitee.com/zmister/MrDoc) 在Linux下的一键部署脚本。
 
-- [x] 采用 uwsgi/nginx 方式部署
+- [x] 采用 uwsgi 方式部署
 - [x]  centos7.x / debian 10(树莓派3B) 测试通过
 - [ ] Ubuntu 系列待测试
 
@@ -15,7 +15,6 @@ mrdoc 一键部署脚本
 
 在终端中运行以下命令 (二选一) 即可,可重复执行.
 
-默认 nginx 端口为 10086,可先执行 `export port=xxx` 来自定义端口,或者后续自行更改 `/etc/nginx/conf.d/mrdoc_nginx_jonnyan404.conf` 文件.
 
 ```bash
 ### github 链接
@@ -25,7 +24,7 @@ curl https://raw.githubusercontent.com/Jonnyan404/oh-my-mrdoc/main/mrdoc-install
 curl https://gitee.com/jonnyan404/oh-my-mrdoc/raw/main/mrdoc-install.sh | bash
 ```
 
-部署成功后，打开 `http://IP:10086` 即可访问，用户密码请查看脚本提示！
+部署成功后，打开 `http://IP:10086` 即可访问，用户密码请查看脚本提示！**注意:自2021年9月7日去除nginx配置,但配置文件依然保留,供参考!**
 
 # 管理mrdoc
 
