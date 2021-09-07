@@ -29,14 +29,14 @@ installdepend(){
         apt-get -qq update
         SOFTWARE_UPDATED=1
         fi
-        apt-get -y  install git pwgen python3 python3-dev python3-pip nginx gcc wheel python3-setuptools python3-venv
+        apt-get -y  install git pwgen python3 python3-dev python3-pip gcc wheel python3-setuptools python3-venv
     elif [[ -n $(command -v yum) ]]; then
         if [[ $SOFTWARE_UPDATED -eq 0 ]]; then
         colorEcho ${BLUE} "Updating software repo"
         yum -q makecache
         SOFTWARE_UPDATED=1
         fi
-        yum -y  install epel-release git pwgen python3 python3-devel python3-pip nginx 
+        yum -y  install epel-release git pwgen python3 python3-devel python3-pip
         sqliteversion=$(sqlite3 -version|awk '{print $1}')
         res=$(expr "$sqliteversion" \> 3.8.3)
         if [ ${res} -eq 0 ];then
@@ -90,6 +90,7 @@ cat >"/opt/jonnyan404/mrdoc_uwsgi.ini"<<EOF
 [uwsgi]
 
 # Django-related settings
+http            = :${port:-10086}
 # the base directory (full path)
 chdir           = /opt/jonnyan404/MrDoc
 # Django's wsgi file
@@ -116,7 +117,7 @@ EOF
 cat >"/opt/jonnyan404/mrdoc_nginx_jonnyan404.conf"<<EOF
 server {
     # the port your site will be served on
-    listen      ${port:-10086};
+    listen      80;
     # the domain name it will serve for
     server_name _; # substitute your machine's IP address or FQDN
     charset     utf-8;
@@ -197,26 +198,11 @@ main(){
         initconfig
         colorEcho  ${BLUE}  "###启动mrdoc...###"
         if start;then
-            if [ "$nginxcount" -eq 0 ];then
-                if systemctl start nginx ;then
-                    cp /opt/jonnyan404/mrdoc_nginx_jonnyan404.conf /etc/nginx/conf.d/
-                    if nginx -t ;then
-                        nginx -s reload
-                        colorEcho  ${BLUE}  "###重载nginx配置成功...###"
-                    else
-                        colorEcho  ${RED}  "###nginx配置有问题,请检查...###"
-                        colorEcho  ${RED} "Please check your nginx configuration file"
-                    fi
-                else
-                    colorEcho  ${RED}  "###nginx启动失败,请检查...###"
-                    colorEcho  ${RED} "nginx failed to start!!!###Please check your nginx process###"
-                fi
-            else
-                colorEcho  ${YELLOW}  "###(新环境多次执行命令,请忽略~)已有nginx进程在运行,请手动复制/opt/jonnyan404/mrdoc_nginx_jonnyan404.conf到你的nginx配置目录!...###"
-                colorEcho  ${YELLOW} "Please manually copy the /opt/jonnyan404/mrdoc_nginx_jonnyan404.conf file to your nginx configuration"
-            fi
             colorEcho  ${GREEN}  "$(cat /opt/jonnyan404/pwdinfo.log),Password is saved in /opt/jonnyan404/pwdinfo.log"
-            colorEcho  ${GREEN}  "如果上方没显示账号密码,就是部署失败,请进群反馈!"
+            colorEcho  ${GREEN}  "如果上方没显示账号密码,就是部署失败,请进群\@亖\反馈!QQ群号:735507293"
+        else
+            colorEcho  ${RED}  "部署失败,请进群\@亖\反馈!QQ群号:735507293"
+            systemctl status mrdoc
         fi
     fi
 }
