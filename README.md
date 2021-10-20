@@ -13,15 +13,19 @@ mrdoc 一键部署脚本
 > 使用前需知：由于目前脚本部署还处于早期阶段，为保证成功率，请尽量使用新机器！！！
 > 当然部署了其它服务的机器也可以，需要注意端口占用问题！
 
-在终端中运行以下命令 (二选一) 即可,可重复执行.
+在终端中运行以下命令,可重复执行.
 
 
 ```bash
-### github 链接
-curl https://raw.githubusercontent.com/Jonnyan404/oh-my-mrdoc/main/mrdoc-install.sh | bash
+### github 链接(二选一)
+git clone https://github.com/Jonnyan404/oh-my-mrdoc.git
 
-### gitee 链接
-curl https://gitee.com/jonnyan404/oh-my-mrdoc/raw/main/mrdoc-install.sh | bash
+### gitee 链接(二选一)
+git clone https://gitee.com/jonnyan404/oh-my-mrdoc.git
+---
+cd oh-my-mrdoc
+chmod 755 mrdoc.sh
+./mrdoc.sh -i
 ```
 
 部署成功后，打开 `http://IP:10086` 即可访问，用户密码请查看脚本提示！**注意:自2021年9月7日去除nginx配置,但配置文件依然保留,供参考!**
@@ -29,12 +33,17 @@ curl https://gitee.com/jonnyan404/oh-my-mrdoc/raw/main/mrdoc-install.sh | bash
 # 管理mrdoc
 
 ```
-# 启动mrdoc
-systemctl start mrdoc
-# 停止mrdoc
-systemctl stop mrdoc
-# 重启mrdoc
-systemctl restart mrdoc
+root@raspberrypi:/opt/oh-my-mrdoc# ./mrdoc.sh -h
+./mrdoc.sh [-h] [-i] [-start] [-stop] [-restart] [-u] [-c] [--remove] [-v]
+  -h, --help              Show help | 展示帮助选项
+  -i, --install           To install mrdoc | 安装 mrdoc
+  -start, --start         Start mrdoc | 启动 mrdoc
+  -stop, --stop           Stop mrdoc | 停止 mrdoc
+  -restart, --restart     Restart mrdoc | 重启 mrdoc
+  -u, --update            Update mrdoc version | 更新 mrdoc 源码
+      --remove            Remove installed mrdoc | 卸载 mrdoc
+  -c, --check             Check for update | 检查mrdoc安装脚本是否可更新
+  -v, --version           Look script version | 查看脚本版本号
 ```
 
 # FAQ
@@ -48,11 +57,12 @@ systemctl restart mrdoc
 
 # TODO
 
-- [ ] 增加脚本 ·安装/更新/卸载· 功能
+- [x] 增加脚本 ·安装/更新/卸载· 功能
 - [ ] 增加脚本在线自更新
-- [ ] 增加脚本管理（启动/停止/重启） mrdoc
+- [x] 增加脚本管理（启动/停止/重启） mrdoc
 
 # 更新日志
+2021年10月20日 18:00 重构脚本,增加功能.
 
 2021年5月20日 22:00:00 优化安装提示
 
