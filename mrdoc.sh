@@ -279,7 +279,7 @@ while [[ $# -gt 0 ]];do
         #shift
         ;;
         -u|--update)
-        colorEcho  ${YELLOW} "暂未实现"
+        update
         ;;
         --remove)
         remove
