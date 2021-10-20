@@ -229,10 +229,10 @@ Help(){
     echo "  -start, --start         Start mrdoc | 启动 mrdoc"
     echo "  -stop, --stop           Stop mrdoc | 停止 mrdoc"
     echo "  -restart, --restart     Restart mrdoc | 重启 mrdoc"
-    echo "  -v, --version           Look script version | 查看脚本版本号"
     echo "  -u, --update            Update mrdoc version | 更新 mrdoc 源码"
     echo "      --remove            Remove installed mrdoc | 卸载 mrdoc"
     echo "  -c, --check             Check for update | 检查mrdoc安装脚本是否可更新"
+    echo "  -v, --version           Look script version | 查看脚本版本号"
     return 0
 }
 
