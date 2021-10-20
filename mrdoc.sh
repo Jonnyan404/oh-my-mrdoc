@@ -205,16 +205,30 @@ remove(){
     mv -f /opt/jonnyan404 /tmp/
     mv -f /etc/systemd/system/mrdocfun.service /tmp/
     systemctl daemon-reload
+    colorEcho  ${GREEN} "卸载完成!"
+
+}
+
+update(){
+    MRDOCDIR=/opt/jonnyan404
+    cd ${MRDOCDIR}/MrDoc && git pull
+    source ${MRDOCDIR}/mrdoc_env/bin/activate \
+    && cd ${MRDOCDIR}/MrDoc \
+    && pip3 install -r requirements.txt \
+    && python3 manage.py makemigrations \
+    && python3 manage.py migrate \
+    && deactivate
+    colorEcho  ${YELLOW} "如果此步有报错,请查看官网关于升级的要求(一般是缺少系统依赖)或者群内咨询."
 }
 
 Help(){
-    echo "./mrdoc.sh [-h] [-i] [-start] [-stop] [-restart] [-u] [-c] [--remove] [--version]"
+    echo "./mrdoc.sh [-h] [-i] [-start] [-stop] [-restart] [-u] [-c] [--remove] [-v]"
     echo "  -h, --help              Show help | 展示帮助选项"
     echo "  -i, --install           To install mrdoc | 安装 mrdoc"
     echo "  -start, --start         Start mrdoc | 启动 mrdoc"
     echo "  -stop, --stop           Stop mrdoc | 停止 mrdoc"
     echo "  -restart, --restart     Restart mrdoc | 重启 mrdoc"
-    echo "      --version           Look script version | 查看脚本版本号"
+    echo "  -v, --version           Look script version | 查看脚本版本号"
     echo "  -u, --update            Update mrdoc version | 更新 mrdoc 源码"
     echo "      --remove            Remove installed mrdoc | 卸载 mrdoc"
     echo "  -c, --check             Check for update | 检查mrdoc安装脚本是否可更新"
@@ -230,6 +244,7 @@ main(){
         ln -sf /opt/jonnyan404/mrdocfun.service /etc/systemd/system/mrdocfun.service
         colorEcho  ${BLUE}  "###启动mrdoc...###"
         if start;then
+            systemctl status mrdocfun
             colorEcho  ${GREEN}  "$(cat /opt/jonnyan404/pwdinfo.log),Password is saved in /opt/jonnyan404/pwdinfo.log"
             colorEcho  ${GREEN}  "如果上方没显示账号密码,就是部署失败,请进群\@亖\反馈!QQ群号:735507293"
         else
@@ -259,7 +274,7 @@ while [[ $# -gt 0 ]];do
         -restart|--restart)
         restart
         ;;
-        --version)
+        -v|--version)
         echo "当前版本号:${SCR_VERSION}"
         #shift
         ;;
@@ -273,7 +288,7 @@ while [[ $# -gt 0 ]];do
         colorEcho  ${YELLOW} "暂未实现"
         ;;
         *)
-        Help        # unknown option
+        colorEcho  ${RED}  "指令错误,请重新输入..."        # unknown option
         ;;
     esac
     shift # past argument or value
