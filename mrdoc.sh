@@ -6,6 +6,7 @@
 # Version:1.0
 
 SYSTEMCTL_CMD=$(command -v systemctl 2>/dev/null)
+#MYDIR=$(dirname "$0")
 #SERVICE_CMD=$(command -v service 2>/dev/null)
 SOFTWARE_UPDATED=0
 SCR_VERSION="2021.10.20"
