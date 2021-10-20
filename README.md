@@ -21,8 +21,7 @@ git clone https://github.com/Jonnyan404/oh-my-mrdoc.git
 git clone https://gitee.com/jonnyan404/oh-my-mrdoc.git
 ---
 cd oh-my-mrdoc
-chmod 755 mrdoc.sh
-./mrdoc.sh -i
+bash mrdoc.sh -i
 ```
 
 部署成功后，打开 `http://IP:10086` 即可访问，用户密码请查看脚本提示！**注意:自2021年9月7日去除nginx配置,但配置文件依然保留,供参考!**
@@ -30,7 +29,7 @@ chmod 755 mrdoc.sh
 # 管理mrdoc
 
 ```
-root@raspberrypi:/opt/oh-my-mrdoc# ./mrdoc.sh -h
+root@raspberrypi:/opt/oh-my-mrdoc# bash mrdoc.sh -h
 ./mrdoc.sh [-h] [-i] [-start] [-stop] [-restart] [-u] [-c] [--remove] [-v]
   -h, --help              Show help | 展示帮助选项
   -i, --install           To install mrdoc | 安装 mrdoc
