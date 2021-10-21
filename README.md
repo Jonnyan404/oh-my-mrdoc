@@ -19,9 +19,12 @@ git clone https://github.com/Jonnyan404/oh-my-mrdoc.git
 
 ### gitee 链接(二选一)
 git clone https://gitee.com/jonnyan404/oh-my-mrdoc.git
----
+---开源版---
 cd oh-my-mrdoc
-bash mrdoc.sh -i
+export mrdocport=10086;bash mrdoc.sh -i
+---专业版---
+cd oh-my-mrdoc
+export mrdocport=10085;bash mrdoc.sh -i https://test:123456@git.mrdoc.pro/MrDoc/MrDocPro.git
 ```
 
 部署成功后，打开 `http://IP:10086` 即可访问，用户密码请查看脚本提示！**注意:自2021年9月7日去除nginx配置,但配置文件依然保留,供参考!**
@@ -30,7 +33,7 @@ bash mrdoc.sh -i
 
 ```
 root@raspberrypi:/opt/oh-my-mrdoc# bash mrdoc.sh -h
-./mrdoc.sh [-h] [-i] [-start] [-stop] [-restart] [-u] [-c] [--remove] [-v]
+./mrdoc.sh [-h] [-i link] [-start pro] [-stop pro] [-restart pro] [-u pro] [-c] [--remove pro] [-v]
   -h, --help              Show help | 展示帮助选项
   -i, --install           To install mrdoc | 安装 mrdoc
   -start, --start         Start mrdoc | 启动 mrdoc
