@@ -9,7 +9,7 @@ SYSTEMCTL_CMD=$(command -v systemctl 2>/dev/null)
 #MYDIR=$(dirname "$0")
 #SERVICE_CMD=$(command -v service 2>/dev/null)
 SOFTWARE_UPDATED=0
-SCR_VERSION="2021.10.21"
+SCR_VERSION="2021.11.1"
 #######color code########
 RED="31m"      # Error message
 GREEN="32m"    # Success message
@@ -226,8 +226,30 @@ update(){
     colorEcho  ${YELLOW} "如果此步有报错,请查看官网关于升级的要求(一般是缺少系统依赖)或者群内咨询."
 }
 
+changepwd(){
+    if [[ $GIT_DIR == "MrDocPro" ]] ;then
+        colorEcho  ${BLUE}  "###修改专业版密码中...当前用户是:${cuser}###"
+    else
+        colorEcho  ${BLUE}  "###修改开源版密码中...当前用户是:${cuser}###"
+    fi
+    MRDOCDIR=/opt/jonnyan404
+    source ${MRDOCDIR}/"${GIT_DIR}"_env/bin/activate \
+    && python3 ${MRDOCDIR}/"${GIT_DIR}"/manage.py changepassword ${cuser}
+}
+
+createsu(){
+    if [[ $GIT_DIR == "MrDocPro" ]] ;then
+        colorEcho  ${BLUE}  "###创建 专业版管理员 用户中...###"
+    else
+        colorEcho  ${BLUE}  "###创建 开源版管理员 用户中...###"
+    fi
+    MRDOCDIR=/opt/jonnyan404
+    source ${MRDOCDIR}/"${GIT_DIR}"_env/bin/activate \
+    && python3 ${MRDOCDIR}/"${GIT_DIR}"/manage.py createsuperuser
+}
+
 Help(){
-    echo "./mrdoc.sh [-h] [-i] [-start] [-stop] [-restart] [-u] [-c] [--remove] [-v]"
+    echo "./mrdoc.sh [-h] [-i link] [-start pro] [-stop pro] [-restart pro] [-u pro] [-c] [--remove pro] [-v] [--changepwd user pro] [--createsu pro]"
     echo "  -h, --help              Show help | 展示帮助选项"
     echo "  -i, --install           To install mrdoc | 安装 mrdoc"
     echo "  -start, --start         Start mrdoc | 启动 mrdoc"
@@ -237,6 +259,8 @@ Help(){
     echo "      --remove            Remove installed mrdoc | 卸载 mrdoc"
     echo "  -c, --check             Check for update | 检查mrdoc安装脚本是否可更新"
     echo "  -v, --version           Look script version | 查看脚本版本号"
+    echo "      --changepwd         Changepassword | 修改用户密码"
+    echo "      --createsu          Createsuperuser | 创建新的管理员用户"
     return 0
 }
 
@@ -331,6 +355,30 @@ while [[ $# -gt 0 ]];do
         ;;
         -c|--check)
         colorEcho  ${YELLOW} "暂未实现"
+        ;;
+        --changepwd)
+        if [[ "$2" != "" ]] ;then
+            cuser=$2
+            if [[ "$3" == "pro" ]] ;then
+                GIT_DIR=MrDocPro
+                shift
+            else
+                GIT_DIR=MrDoc
+            fi
+            changepwd
+            shift
+        else
+            colorEcho  ${RED}  "请指定用户名..."
+        fi
+        ;;
+        --createsu)
+        if [[ "$2" == "pro" ]] ;then
+            GIT_DIR=MrDocPro
+            shift
+        else
+            GIT_DIR=MrDoc
+        fi
+        createsu
         ;;
         *)
         colorEcho  ${RED}  "指令错误,请重新输入..."        # unknown option
