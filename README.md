@@ -43,6 +43,8 @@ root@raspberrypi:/opt/oh-my-mrdoc# bash mrdoc.sh -h
       --remove            Remove installed mrdoc | 卸载 mrdoc
   -c, --check             Check for update | 检查mrdoc安装脚本是否可更新
   -v, --version           Look script version | 查看脚本版本号
+      --changepwd         Changepassword | 修改用户密码
+      --createsu          Createsuperuser | 创建新的管理员用户
 ```
 
 # FAQ
@@ -61,7 +63,9 @@ root@raspberrypi:/opt/oh-my-mrdoc# bash mrdoc.sh -h
 - [x] 增加脚本管理（启动/停止/重启） mrdoc
 
 # 更新日志
-2021年10月20日 18:00 重构脚本,增加功能.
+2021年11月01日 13:00 增加修改密码+创建管理员用户选项
+
+2021年10月20日 18:00 重构脚本,增加功能
 
 2021年5月20日 22:00:00 优化安装提示
 
