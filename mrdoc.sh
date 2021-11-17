@@ -3,13 +3,13 @@
 # Author: create by jonnyan404
 # Blog:https://www.mrdoc.fun
 # Description:This script is auto install mrdoc project
-# Version:1.0
+# Version:1.1
 
 SYSTEMCTL_CMD=$(command -v systemctl 2>/dev/null)
-#MYDIR=$(dirname "$0")
+WORK_PATH=$(cd "$(dirname "$0")";pwd)
 #SERVICE_CMD=$(command -v service 2>/dev/null)
 SOFTWARE_UPDATED=0
-SCR_VERSION="2021.11.1"
+SCR_VERSION="2021.11.17"
 #######color code########
 RED="31m"      # Error message
 GREEN="32m"    # Success message
@@ -43,8 +43,7 @@ installdepend(){
             yum -y remove  sqlite-devel
             wget -O /tmp/sqlite.rpm https://kojipkgs.fedoraproject.org//packages/sqlite/3.8.11/1.fc21/x86_64/sqlite-3.8.11-1.fc21.x86_64.rpm
             if ! yum -y install /tmp/sqlite.rpm ;then
-                wget -O /tmp/ https://www.sqlite.org/2020/sqlite-autoconf-3340000.tar.gz
-                tar zxvf /tmp/sqlite-autoconf-3340000.tar.gz
+                tar -zxvf "$WORK_PATH"/sqlite-autoconf-3340000.tar.gz -C /tmp
                 cd /tmp/sqlite-autoconf-3340000 || exit \
                 && ./configure --prefix=/usr/local \
                 && make && make install
