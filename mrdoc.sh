@@ -177,7 +177,7 @@ start(){
     if systemctl start "${GIT_DIR}"fun;then
         colorEcho  ${GREEN} "启动${GIT_DIR}成功"
     else
-        systemctl status "${GIT_DIR}"fun
+        systemctl status "${GIT_DIR}"fun -l
         colorEcho  ${RED} "启动${GIT_DIR}失败"
     fi
 }
@@ -187,7 +187,7 @@ stop(){
     if systemctl stop "${GIT_DIR}"fun;then
         colorEcho  ${GREEN} "停止${GIT_DIR}成功"
     else
-        systemctl status "${GIT_DIR}"fun
+        systemctl status "${GIT_DIR}"fun -l
         colorEcho  ${RED} "停止${GIT_DIR}失败"
     fi
 }
@@ -197,7 +197,7 @@ restart(){
     if systemctl restart "${GIT_DIR}"fun;then
         colorEcho  ${GREEN} "重启${GIT_DIR}成功"
     else
-        systemctl status "${GIT_DIR}"fun
+        systemctl status "${GIT_DIR}"fun -l
         colorEcho  ${RED} "重启${GIT_DIR}失败"
     fi
 }
@@ -281,7 +281,7 @@ main(){
         ln -sf /opt/jonnyan404/"${GIT_DIR}"fun.service /etc/systemd/system/"${GIT_DIR}"fun.service
         colorEcho  ${BLUE}  "###启动mrdoc...###"
         if start;then
-            systemctl status "${GIT_DIR}"fun
+            systemctl status "${GIT_DIR}"fun -l
             colorEcho  ${GREEN}  "$(cat /opt/jonnyan404/${GIT_DIR}pwdinfo.log),Password is saved in /opt/jonnyan404/${GIT_DIR}pwdinfo.log"
             colorEcho  ${GREEN}  "如果上方没显示账号密码,就是部署失败,请进群\@亖\反馈!QQ群号:735507293"
         else
