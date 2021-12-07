@@ -3,7 +3,7 @@
 # Author: create by jonnyan404
 # Blog:https://www.mrdoc.fun
 # Description:This script is auto install mrdoc project
-# Version:1.1
+# Version:1.2
 
 SYSTEMCTL_CMD=$(command -v systemctl 2>/dev/null)
 WORK_PATH=$(cd "$(dirname "$0")";pwd)
@@ -29,14 +29,14 @@ installdepend(){
         apt-get  update
         SOFTWARE_UPDATED=1
         fi
-        apt-get -y  install git pwgen python3 python3-dev python3-pip gcc python3-wheel python3-setuptools python3-venv
+        apt-get -y  install git pwgen python3 python3-dev python3-pip gcc python3-wheel python3-setuptools python3-venv libldap2-dev libsasl2-dev
     elif [[ -n $(command -v yum) ]]; then
         if [[ $SOFTWARE_UPDATED -eq 0 ]]; then
         colorEcho ${BLUE} "Updating software repo"
         yum -q makecache
         SOFTWARE_UPDATED=1
         fi
-        yum -y  install epel-release git pwgen python3 python3-devel python3-pip
+        yum -y  install epel-release git pwgen python3 python3-devel python3-pip gcc openldap openldap-devel openssl-devel 
         sqliteversion=$(sqlite3 -version|awk '{print $1}')
         res=$(expr "$sqliteversion" \> 3.8.3)
         if [ "$res" -eq 0 ];then
@@ -248,6 +248,8 @@ createsu(){
 }
 
 Help(){
+    colorEcho  ${BLUE}  "如需修改 mrdoc 配置文件,请到 /opt/jonnyan404/ 目录下"
+    echo "-------"
     echo "./mrdoc.sh [-h] [-i link] [-start pro] [-stop pro] [-restart pro] [-u pro] [-c] [--remove pro] [-v] [--changepwd user pro] [--createsu pro]"
     echo "  -h, --help              Show help | 展示帮助选项"
     echo "  -i, --install           To install mrdoc | 安装 mrdoc"
