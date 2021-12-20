@@ -65,7 +65,7 @@ installdepend(){
 installmrdoc(){
     MRDOCDIR=/opt/jonnyan404
     USER="admin"
-    MM=$(pwgen -1s)
+    MM=$(cat /proc/sys/kernel/random/uuid| cut -f1 -d "-")
 
     mkdir -p ${MRDOCDIR}
     touch ${MRDOCDIR}/"${GIT_DIR}"pwdinfo.log
