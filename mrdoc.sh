@@ -25,21 +25,24 @@ colorEcho(){
 installdepend(){
     if [[ -n $(command -v apt-get) ]];then
         if [[ $SOFTWARE_UPDATED -eq 0 ]]; then
-        colorEcho ${BLUE} "Updating software repo"
-        apt-get  update
+        colorEcho ${BLUE} "Debian/Ubuntu Updating software repo"
+        apt-get update
         SOFTWARE_UPDATED=1
         fi
-        apt-get -y  install git pwgen python3 python3-dev python3-pip gcc python3-wheel python3-setuptools python3-venv libldap2-dev libsasl2-dev
+        apt-get -y install git python3 python3-dev python3-pip gcc python3-wheel python3-setuptools python3-venv libldap2-dev libsasl2-dev
     elif [[ -n $(command -v yum) ]]; then
         if [[ $SOFTWARE_UPDATED -eq 0 ]]; then
-        colorEcho ${BLUE} "Updating software repo"
+        colorEcho ${BLUE} "Centos Updating software repo"
         yum -q makecache
         SOFTWARE_UPDATED=1
         fi
-        yum -y  install epel-release git pwgen python3 python3-devel python3-pip gcc openldap openldap-devel openssl-devel 
+        yum -y install epel-release git python3 python3-devel python3-pip gcc openldap openldap-devel openssl-devel 
         sqliteversion=$(sqlite3 -version|awk '{print $1}')
-        res=$(expr "$sqliteversion" \> 3.8.3)
-        if [ "$res" -eq 0 ];then
+        function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; }
+        if version_ge $sqliteversion "3.8.3"; then
+	      colorEcho ${BLUE} "Sqlite3 Version ${sqliteversion} Support!"
+        else
+		    colorEcho ${YELLOW} "Sqlite3 Version ${sqliteversion} Not Support,Install New Version..."
             yum -y remove  sqlite-devel
             wget -O /tmp/sqlite.rpm https://kojipkgs.fedoraproject.org//packages/sqlite/3.8.11/1.fc21/x86_64/sqlite-3.8.11-1.fc21.x86_64.rpm
             if ! yum -y install /tmp/sqlite.rpm ;then
@@ -73,7 +76,7 @@ installmrdoc(){
     pip3 install uwsgi
     python3 -m venv ${MRDOCDIR}/"${GIT_DIR}"_env
     source ${MRDOCDIR}/"${GIT_DIR}"_env/bin/activate \
-    && pip install --upgrade pip \
+    && pip3 install --upgrade pip \
     && cd ${MRDOCDIR}/"${GIT_DIR}" \
     && pip3 install -r requirements.txt \
     && python3 manage.py makemigrations \
