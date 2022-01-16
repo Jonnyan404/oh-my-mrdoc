@@ -3,13 +3,13 @@
 # Author: create by jonnyan404
 # Blog:https://www.mrdoc.fun
 # Description:This script is auto install mrdoc project
-# Version:1.2
+# Version:1.3
 
 SYSTEMCTL_CMD=$(command -v systemctl 2>/dev/null)
 WORK_PATH=$(cd "$(dirname "$0")";pwd)
 #SERVICE_CMD=$(command -v service 2>/dev/null)
 SOFTWARE_UPDATED=0
-SCR_VERSION="2021.11.17"
+SCR_VERSION="2022.01.14"
 #######color code########
 RED="31m"      # Error message
 GREEN="32m"    # Success message
@@ -29,14 +29,14 @@ installdepend(){
         apt-get update
         SOFTWARE_UPDATED=1
         fi
-        apt-get -y install git python3 python3-dev python3-pip gcc python3-wheel python3-setuptools python3-venv libldap2-dev libsasl2-dev
+        apt-get -y install git python3 python3-dev python3-pip gcc python3-wheel python3-setuptools python3-venv libldap2-dev libsasl2-dev libmariadb-dev
     elif [[ -n $(command -v yum) ]]; then
         if [[ $SOFTWARE_UPDATED -eq 0 ]]; then
         colorEcho ${BLUE} "Centos Updating software repo"
         yum -q makecache
         SOFTWARE_UPDATED=1
         fi
-        yum -y install epel-release git python3 python3-devel python3-pip gcc openldap openldap-devel openssl-devel 
+        yum -y install epel-release git python3 python3-devel python3-pip gcc openldap openldap-devel openssl-devel mariadb-devel
         sqliteversion=$(sqlite3 -version|awk '{print $1}')
         function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; }
         if version_ge $sqliteversion "3.8.3"; then
@@ -87,7 +87,7 @@ installmrdoc(){
 
 initconfig(){
 ###  Generate uwsgi configuration file ###
-    if [[ ! -f "/opt/jonnyan404/${GIT_DIR}_uwsgi.ini" ]]; then
+if [[ ! -f "/opt/jonnyan404/${GIT_DIR}_uwsgi.ini" ]]; then
 cat >"/opt/jonnyan404/${GIT_DIR}_uwsgi.ini"<<EOF
 [uwsgi]
 
@@ -100,6 +100,7 @@ module          = ${GIT_DIR}.wsgi:application
 wsgi-file       = ${GIT_DIR}/wsgi.py
 # the virtualenv (full path)
 home            = /opt/jonnyan404/${GIT_DIR}_env
+logto = /opt/jonnyan404/mrdoc_uwsgi_log.log
 
 # process-related settings
 # master
@@ -113,9 +114,9 @@ chmod-socket    = 666
 # clear environment on exit
 vacuum          = true
 EOF
-    fi
+fi
 ### Generate nginx configuration file ###
-    if [[ ! -f "/opt/jonnyan404/${GIT_DIR}_nginx_jonnyan404.conf" ]]; then
+if [[ ! -f "/opt/jonnyan404/${GIT_DIR}_nginx_jonnyan404.conf" ]]; then
 cat >"/opt/jonnyan404/${GIT_DIR}_nginx_jonnyan404.conf"<<EOF
 server {
     # the port your site will be served on
@@ -144,7 +145,35 @@ server {
     }
 }
 EOF
-    fi
+fi
+### Generate mrdoc sample configuration file ###
+if [[ ! -f "/opt/jonnyan404/${GIT_DIR}/config/config_sample.ini" ]]; then
+cat >"/opt/jonnyan404/${GIT_DIR}/config/config_sample.ini"<<EOF
+[site]
+# True表示开启站点调试模式，False表示关闭站点调试模式
+debug = False
+[database]
+# engine，指定数据库类型，接受sqlite、mysql、oracle、postgresql
+engine = mysql
+# name表示数据库的名称
+name = db_name
+# user表示数据库用户名
+user = db_user
+# password表示数据库用户密码
+password = db_pwd
+# host表示数据库主机地址
+host = db_host
+# port表示数据库端口
+port = db_port
+[selenium]
+# PDF相关配置项
+# 在Windows环境下测试或使用，请配置driver = Chrome，否则不用配置 driver 参数
+driver = Chrome
+# 如果系统无法正确安装或识别chromedriver，请指定chromedriver在计算机上的绝对路径
+driver_path = driver_path
+# 专业版更多配置请查看文档 "https://doc.mrdoc.pro/doc/3445/"
+EOF
+fi
 ### Generate systemd configuration file ###
 if [[ -n "${SYSTEMCTL_CMD}" ]];then
 cat>"/opt/jonnyan404/${GIT_DIR}fun.service"<<EOF
@@ -193,6 +222,11 @@ stop(){
         systemctl status "${GIT_DIR}"fun -l
         colorEcho  ${RED} "停止${GIT_DIR}失败"
     fi
+}
+
+status(){
+    systemctl daemon-reload
+    systemctl status "${GIT_DIR}"fun -l
 }
 
 restart(){
@@ -250,14 +284,33 @@ createsu(){
     && python3 ${MRDOCDIR}/"${GIT_DIR}"/manage.py createsuperuser
 }
 
+initdb(){
+    MRDOCDIR=/opt/jonnyan404
+    USER="admin"
+    MM=$(cat /proc/sys/kernel/random/uuid| cut -f1 -d "-")
+
+    mkdir -p ${MRDOCDIR}
+    touch ${MRDOCDIR}/"${GIT_DIR}"pwdinfo.log
+    source ${MRDOCDIR}/"${GIT_DIR}"_env/bin/activate \
+    && pip3 install --upgrade pip \
+    && cd ${MRDOCDIR}/"${GIT_DIR}" \
+    && python3 manage.py makemigrations \
+    && python3 manage.py migrate \
+    && if echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('${USER}', 'www@mrdoc.fun', '${MM}')" | python manage.py shell;then printf "$(date) user:%s pwd:%s\n" "$USER" "$MM" >>/opt/jonnyan404/"${GIT_DIR}"pwdinfo.log; fi \
+    && deactivate
+    colorEcho  ${YELLOW} "如果此步有报错,一般是数据库版本和数据库配置问题."
+    colorEcho  ${GREEN} "执行完毕,当前账号密码为:${USER}和${MM}"
+}
+
 Help(){
     colorEcho  ${BLUE}  "如需修改 mrdoc 配置文件,请到 /opt/jonnyan404/ 目录下"
     echo "-------"
-    echo "./mrdoc.sh [-h] [-i link] [-start pro] [-stop pro] [-restart pro] [-u pro] [-c] [--remove pro] [-v] [--changepwd user pro] [--createsu pro]"
+    echo "./mrdoc.sh [-h] [-i link] [-start pro] [-stop pro] [-status pro] [-restart pro] [-u pro] [-c] [--remove pro] [-v] [--changepwd user pro] [--createsu pro] [--initdb pro]"
     echo "  -h, --help              Show help | 展示帮助选项"
     echo "  -i, --install           To install mrdoc | 安装 mrdoc"
     echo "  -start, --start         Start mrdoc | 启动 mrdoc"
     echo "  -stop, --stop           Stop mrdoc | 停止 mrdoc"
+    echo "  -status, --status       mrdoc status | 查看 mrdoc 当前运行状态"
     echo "  -restart, --restart     Restart mrdoc | 重启 mrdoc"
     echo "  -u, --update            Update mrdoc version | 更新 mrdoc 源码"
     echo "      --remove            Remove installed mrdoc | 卸载 mrdoc"
@@ -265,6 +318,7 @@ Help(){
     echo "  -v, --version           Look script version | 查看脚本版本号"
     echo "      --changepwd         Changepassword | 修改用户密码"
     echo "      --createsu          Createsuperuser | 创建新的管理员用户"
+    echo "      --initdb            Initialize database | 初始化数据库,更换数据库时需要执行."
     return 0
 }
 
@@ -284,14 +338,17 @@ main(){
         colorEcho  ${BLUE}  "###初始化配置中...###"
         initconfig
         ln -sf /opt/jonnyan404/"${GIT_DIR}"fun.service /etc/systemd/system/"${GIT_DIR}"fun.service
+        colorEcho  ${BLUE}  "###写入环境变量...###"
+        chmod a+x "${WORK_PATH}"/mrdoc.sh 
+        ln -sf "${WORK_PATH}"/mrdoc.sh /bin/mrdoc
         colorEcho  ${BLUE}  "###启动mrdoc...###"
         if start;then
-            systemctl status "${GIT_DIR}"fun -l
+            # systemctl status "${GIT_DIR}"fun -l
             colorEcho  ${GREEN}  "$(cat /opt/jonnyan404/${GIT_DIR}pwdinfo.log),Password is saved in /opt/jonnyan404/${GIT_DIR}pwdinfo.log"
             colorEcho  ${GREEN}  "如果上方没显示账号密码,就是部署失败,请进群\@亖\反馈!QQ群号:735507293"
         else
             colorEcho  ${RED}  "部署失败,请进群\@亖\反馈!QQ群号:735507293"
-            systemctl status "${GIT_DIR}"
+            systemctl status "${GIT_DIR}"fun -l
         fi
     fi
 }
@@ -325,6 +382,15 @@ while [[ $# -gt 0 ]];do
             GIT_DIR=MrDoc
         fi
         stop
+        ;;
+        -status|--status)
+        if [[ "$2" == "pro" ]] ;then
+            GIT_DIR=MrDocPro
+            shift
+        else
+            GIT_DIR=MrDoc
+        fi
+        status
         ;;
         -restart|--restart)
         if [[ "$2" == "pro" ]] ;then
@@ -383,6 +449,15 @@ while [[ $# -gt 0 ]];do
             GIT_DIR=MrDoc
         fi
         createsu
+        ;;
+        --initdb)
+        if [[ "$2" == "pro" ]] ;then
+            GIT_DIR=MrDocPro
+            shift
+        else
+            GIT_DIR=MrDoc
+        fi
+        initdb
         ;;
         *)
         colorEcho  ${RED}  "指令错误,请重新输入..."        # unknown option
