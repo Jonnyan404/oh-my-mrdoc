@@ -3,7 +3,7 @@
 # Author: create by jonnyan404
 # Blog:https://www.mrdoc.fun
 # Description:This script is auto install mrdoc project
-# Version:1.3
+# Version:1.4
 
 SYSTEMCTL_CMD=$(command -v systemctl 2>/dev/null)
 WORK_PATH=$(cd "$(dirname "$0")";pwd)
@@ -36,7 +36,9 @@ installdepend(){
         yum -q makecache
         SOFTWARE_UPDATED=1
         fi
-        yum -y install epel-release git python3 python3-devel python3-pip gcc openldap openldap-devel openssl-devel mariadb-devel
+        yum -y install epel-release git python3 python3-devel python3-pip gcc openldap openldap-devel openssl-devel
+        yum -y insatll mariadb-devel
+        yum -y insatll mysql-devel
         sqliteversion=$(sqlite3 -version|awk '{print $1}')
         function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; }
         if version_ge $sqliteversion "3.8.3"; then
@@ -171,6 +173,8 @@ port = db_port
 driver = Chrome
 # 如果系统无法正确安装或识别chromedriver，请指定chromedriver在计算机上的绝对路径
 driver_path = driver_path
+[cors_origin]
+allow = http://localhost,capacitor://localhost
 # 专业版更多配置请查看文档 "https://doc.mrdoc.pro/doc/3445/"
 EOF
 fi
@@ -227,6 +231,10 @@ stop(){
 status(){
     systemctl daemon-reload
     systemctl status "${GIT_DIR}"fun -l
+}
+
+showlog(){
+    cat /opt/jonnyan404/mrdoc_uwsgi_log.log
 }
 
 restart(){
@@ -311,6 +319,7 @@ Help(){
     echo "  -start, --start         Start mrdoc | 启动 mrdoc"
     echo "  -stop, --stop           Stop mrdoc | 停止 mrdoc"
     echo "  -status, --status       mrdoc status | 查看 mrdoc 当前运行状态"
+    echo "  -showlog, --showlog     Show uwsgi log | 查看 uwsgi 日志"
     echo "  -restart, --restart     Restart mrdoc | 重启 mrdoc"
     echo "  -u, --update            Update mrdoc version | 更新 mrdoc 源码"
     echo "      --remove            Remove installed mrdoc | 卸载 mrdoc"
@@ -391,6 +400,9 @@ while [[ $# -gt 0 ]];do
             GIT_DIR=MrDoc
         fi
         status
+        ;;
+        -showlog|--showlog)
+        showlog
         ;;
         -restart|--restart)
         if [[ "$2" == "pro" ]] ;then
