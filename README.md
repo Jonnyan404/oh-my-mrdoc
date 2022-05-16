@@ -10,12 +10,15 @@ mrdoc 一键部署脚本
 
 平台测试情况：
 
+**优先推荐 ubuntu18+ 以上系统**
+
 - [x] CentOS 8.5.2111-x86_64（开源版测试通过）
 - [x] CentOS 7-x68_64（开源版测试通过）
 - [x] Debian 8.11.1-i386（不通过，源自带的Python3版本为3.4，不满足MrDoc版本要求，可自行安装Python3.6+）
 - [x] Debian 9.13.0-i386（不通过，源自带的Python3版本为3.5，部分依赖库版本不支持3.5，可自行安装Python3.6+）
 - [x] Debian 10.11.0-i386（开源版测试通过）
 - [x] Debian 11.2.0-i386（开源版测试通过）
+- [x] Loongnix-Server 8.3-loongarch64（开源版测试通过）
 
 # 使用教程
 
@@ -40,14 +43,19 @@ export mrdocport=10085;bash mrdoc.sh -i https://test:123456@git.mrdoc.pro/MrDoc/
 
 # 管理mrdoc
 
-- 方式一:
+### 更新MrDoc
 
-```
-2022.1.14日,新版本把脚本写入到了环境变量里,可以在任意位置执行命令.
-例如 `mrdoc -h` 即可看到方式二的效果(如果无效,请继续方式二.).依此类推,其它命令等效.
-```
+开源版：`mrdoc -u`
 
-- 方式二:
+专业版：`mrdoc -u pro`
+
+### 重启MrDoc
+
+开源版：`mrdoc --restart`
+
+专业版：`mrdoc --restart pro`
+
+### 更多管理命令:
 
 ```
 root@raspberrypi:/opt/oh-my-mrdoc# bash mrdoc.sh -h
@@ -57,6 +65,7 @@ root@raspberrypi:/opt/oh-my-mrdoc# bash mrdoc.sh -h
   -start, --start         Start mrdoc | 启动 mrdoc
   -stop, --stop           Stop mrdoc | 停止 mrdoc
   -status, --status       mrdoc status | 查看 mrdoc 当前运行状态
+  -showlog, --showlog     Show uwsgi log | 查看 uwsgi 日志
   -restart, --restart     Restart mrdoc | 重启 mrdoc
   -u, --update            Update mrdoc version | 更新 mrdoc 源码
       --remove            Remove installed mrdoc | 卸载 mrdoc
@@ -68,6 +77,23 @@ root@raspberrypi:/opt/oh-my-mrdoc# bash mrdoc.sh -h
 ```
 
 # FAQ
+
+### 1.部署成功后访问提示 Internet error
+
+执行命令 mrdoc --restart 进行重启。
+
+### 2.升级SQLite版本后，访问提示 Internet Error，查看日志还是显示 SQLite 版本问题
+
+执行如下命令：
+
+```
+mv /usr/lib64/libsqlite3.so.0 /usr/lib64/libsqlite3.so.0_old
+cp /usr/local/lib/libsqlite3.so.0 /usr/lib64/libsqlite3.so.0
+```
+
+### 3.以上方式皆无法解决,请换docker部署!
+
+- centos下,各种奇怪报错,无法解决的.请换docker部署.
 
 有任何问题,请反馈到 issue 里!
 
