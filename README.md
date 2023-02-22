@@ -1,3 +1,11 @@
+# 项目停止维护(2023年02月22日更新
+
+请切换至 [docker部署](https://www.mrdoc.fun/doc/18/)
+
+
+---
+
+
 # oh-my-mrdoc
 
 mrdoc 一键部署脚本
