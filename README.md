@@ -18,10 +18,13 @@ mrdoc 一键部署脚本
 
 平台测试情况：
 
+由于CentOS系统太乱,问题太多,非常不建议使用CentOS来部署.
+
+**优先推荐 ubuntu18+ 以上系统**
+**优先推荐 ubuntu18+ 以上系统**
 **优先推荐 ubuntu18+ 以上系统**
 
-- [x] CentOS 8.5.2111-x86_64（开源版测试通过）
-- [x] CentOS 7-x68_64（开源版测试通过）
+
 - [x] Debian 8.11.1-i386（不通过，源自带的Python3版本为3.4，不满足MrDoc版本要求，可自行安装Python3.6+）
 - [x] Debian 9.13.0-i386（不通过，源自带的Python3版本为3.5，部分依赖库版本不支持3.5，可自行安装Python3.6+）
 - [x] Debian 10.11.0-i386（开源版测试通过）
@@ -76,6 +79,7 @@ root@raspberrypi:/opt/oh-my-mrdoc# bash mrdoc.sh -h
   -showlog, --showlog     Show uwsgi log | 查看 uwsgi 日志
   -restart, --restart     Restart mrdoc | 重启 mrdoc
   -u, --update            Update mrdoc version | 更新 mrdoc 源码
+      --via               Enter the virtual environment. | 进入 mrdoc 虚拟环境"
       --remove            Remove installed mrdoc | 卸载 mrdoc
   -c, --check             Check for update | 检查mrdoc安装脚本是否可更新
   -v, --version           Look script version | 查看脚本版本号
