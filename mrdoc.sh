@@ -41,13 +41,10 @@ installdepend(){
         yum -y insatll mysql-devel
         sqliteversion=$(sqlite3 -version|awk '{print $1}')
         function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; }
-        if version_ge $sqliteversion "3.8.3"; then
+        if version_ge $sqliteversion "3.9.0"; then
 	      colorEcho ${BLUE} "Sqlite3 Version ${sqliteversion} Support!"
         else
 		    colorEcho ${YELLOW} "Sqlite3 Version ${sqliteversion} Not Support,Install New Version..."
-            yum -y remove  sqlite-devel
-            wget -O /tmp/sqlite.rpm https://kojipkgs.fedoraproject.org//packages/sqlite/3.8.11/1.fc21/x86_64/sqlite-3.8.11-1.fc21.x86_64.rpm
-            if ! yum -y install /tmp/sqlite.rpm ;then
                 tar -zxvf "$WORK_PATH"/sqlite-autoconf-3340000.tar.gz -C /tmp
                 cd /tmp/sqlite-autoconf-3340000 || exit \
                 && ./configure --prefix=/usr/local \
@@ -57,7 +54,6 @@ installdepend(){
                 echo "/usr/local/lib" > /etc/ld.so.conf.d/sqlite3.conf
                 ldconfig
                 sqlite3 -version
-            fi
 
         fi    
     else
@@ -247,6 +243,15 @@ restart(){
     fi
 }
 
+enable(){
+    systemctl daemon-reload
+    if systemctl enable "${GIT_DIR}"fun;then
+        colorEcho  ${GREEN} "设置${GIT_DIR}开机自启成功"
+    else
+        colorEcho  ${RED} "设置${GIT_DIR}开机自启失败"
+    fi
+}
+
 remove(){
     echo "执行卸载中(卸载采用软删除,彻底删除请到/tmp目录手动删除!)"
     systemctl stop "${GIT_DIR}"fun
@@ -292,6 +297,18 @@ createsu(){
     && python3 ${MRDOCDIR}/"${GIT_DIR}"/manage.py createsuperuser
 }
 
+via(){
+    MRDOCDIR=/opt/jonnyan404
+    cd ${MRDOCDIR}/"${GIT_DIR}"
+
+    if source ${MRDOCDIR}/"${GIT_DIR}"_env/bin/activate;then
+        cd ${MRDOCDIR}/"${GIT_DIR}" 
+        colorEcho  ${BLUE} "当前已进入虚拟环境内,如需推出虚拟环境,可直接关闭shell窗口或者当前窗口执行 deactivate 命令."
+    else
+        colorEcho  ${RED} "进入虚拟环境失败,请检查你的命令是否输入正确."
+    fi
+}
+
 initdb(){
     MRDOCDIR=/opt/jonnyan404
     USER="admin"
@@ -322,6 +339,7 @@ Help(){
     echo "  -showlog, --showlog     Show uwsgi log | 查看 uwsgi 日志"
     echo "  -restart, --restart     Restart mrdoc | 重启 mrdoc"
     echo "  -u, --update            Update mrdoc version | 更新 mrdoc 源码"
+    echo "      --via               Enter the virtual environment. | 进入 mrdoc 虚拟环境"
     echo "      --remove            Remove installed mrdoc | 卸载 mrdoc"
     echo "  -c, --check             Check for update | 检查mrdoc安装脚本是否可更新"
     echo "  -v, --version           Look script version | 查看脚本版本号"
@@ -354,9 +372,9 @@ main(){
         if start;then
             # systemctl status "${GIT_DIR}"fun -l
             colorEcho  ${GREEN}  "$(cat /opt/jonnyan404/${GIT_DIR}pwdinfo.log),Password is saved in /opt/jonnyan404/${GIT_DIR}pwdinfo.log"
-            colorEcho  ${GREEN}  "如果上方没显示账号密码,就是部署失败,请进群\@亖\反馈!QQ群号:735507293"
+            colorEcho  ${GREEN}  "如果上方没显示账号密码,就是部署失败,请进群\@亖\反馈!QQ群号:281849650"
         else
-            colorEcho  ${RED}  "部署失败,请进群\@亖\反馈!QQ群号:735507293"
+            colorEcho  ${RED}  "部署失败,请进群\@亖\反馈!QQ群号:281849650"
             systemctl status "${GIT_DIR}"fun -l
         fi
     fi
@@ -413,6 +431,15 @@ while [[ $# -gt 0 ]];do
         fi
         restart
         ;;
+        --enable)
+        if [[ "$2" == "pro" ]] ;then
+            GIT_DIR=MrDocPro
+            shift
+        else
+            GIT_DIR=MrDoc
+        fi
+        enable
+        ;;
         -v|--version)
         echo "当前版本号:${SCR_VERSION}"
         #shift
@@ -425,6 +452,15 @@ while [[ $# -gt 0 ]];do
             GIT_DIR=MrDoc
         fi
         update
+        ;;
+        --via)
+        if [[ "$2" == "pro" ]] ;then
+            GIT_DIR=MrDocPro
+            shift
+        else
+            GIT_DIR=MrDoc
+        fi
+        via
         ;;
         --remove)
         if [[ "$2" == "pro" ]] ;then
