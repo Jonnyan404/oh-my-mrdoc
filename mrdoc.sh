@@ -372,9 +372,9 @@ main(){
         if start;then
             # systemctl status "${GIT_DIR}"fun -l
             colorEcho  ${GREEN}  "$(cat /opt/jonnyan404/${GIT_DIR}pwdinfo.log),Password is saved in /opt/jonnyan404/${GIT_DIR}pwdinfo.log"
-            colorEcho  ${GREEN}  "如果上方没显示账号密码,就是部署失败,请进群\@亖\反馈!QQ群号:281849650"
+            colorEcho  ${GREEN}  "如果上方没显示账号密码,就是部署失败,请反馈至https://gitee.com/jonnyan404/oh-my-mrdoc/issues"
         else
-            colorEcho  ${RED}  "部署失败,请进群\@亖\反馈!QQ群号:281849650"
+            colorEcho  ${RED}  "部署失败,请反馈至https://gitee.com/jonnyan404/oh-my-mrdoc/issues"
             systemctl status "${GIT_DIR}"fun -l
         fi
     fi
