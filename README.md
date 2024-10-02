@@ -111,8 +111,6 @@ cp /usr/local/lib/libsqlite3.so.0 /usr/lib64/libsqlite3.so.0
 
 - gitee issue:<https://gitee.com/jonnyan404/oh-my-mrdoc/issues>
 - github issue:<https://github.com/Jonnyan404/oh-my-mrdoc/issues>
-- QQ群：`735507293`
-- 电报群：<https://t.me/mrdocfun>
 
 # TODO
 
