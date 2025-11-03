@@ -5,6 +5,12 @@
 # Description:This script is auto install mrdoc project
 # Version:1.4
 
+# 检查root权限
+if [[ $EUID -ne 0 ]]; then
+    echo -e "\033[31m此脚本需要root权限运行\033[0m"
+    exit 1
+fi
+
 SYSTEMCTL_CMD=$(command -v systemctl 2>/dev/null)
 WORK_PATH=$(cd "$(dirname "$0")";pwd)
 #SERVICE_CMD=$(command -v service 2>/dev/null)
@@ -25,36 +31,118 @@ colorEcho(){
 installdepend(){
     if [[ -n $(command -v apt-get) ]];then
         if [[ $SOFTWARE_UPDATED -eq 0 ]]; then
-        colorEcho ${BLUE} "Debian/Ubuntu Updating software repo"
-        apt-get update
-        SOFTWARE_UPDATED=1
+            colorEcho ${BLUE} "Debian/Ubuntu Updating software repo"
+            if ! apt-get update; then
+                colorEcho ${RED} "软件源更新失败"
+                return 1
+            fi
+            SOFTWARE_UPDATED=1
         fi
-        apt-get -y install git python3 python3-dev python3-pip gcc python3-wheel python3-setuptools python3-venv libldap2-dev libsasl2-dev libmariadb-dev
+        if ! apt-get -y install git python3 python3-dev python3-pip gcc python3-wheel python3-setuptools python3-venv libldap2-dev libsasl2-dev libmariadb-dev; then
+            colorEcho ${RED} "依赖安装失败"
+            return 1
+        fi
     elif [[ -n $(command -v yum) ]]; then
         if [[ $SOFTWARE_UPDATED -eq 0 ]]; then
-        colorEcho ${BLUE} "Centos Updating software repo"
-        yum -q makecache
-        SOFTWARE_UPDATED=1
+            colorEcho ${BLUE} "Centos Updating software repo"
+            if ! yum -q makecache; then
+                colorEcho ${RED} "软件源更新失败"
+                return 1
+            fi
+            SOFTWARE_UPDATED=1
         fi
-        yum -y install epel-release git python3 python3-devel python3-pip gcc openldap openldap-devel openssl-devel
-        yum -y insatll mariadb-devel
-        yum -y insatll mysql-devel
-        sqliteversion=$(sqlite3 -version|awk '{print $1}')
+        if ! yum -y install epel-release git python3 python3-devel python3-pip gcc openldap openldap-devel openssl-devel; then
+            colorEcho ${RED} "基础依赖安装失败"
+            return 1
+        fi
+        # 修复拼写错误：insatll -> install
+        if ! yum -y install mariadb-devel; then
+            colorEcho ${YELLOW} "mariadb-devel 安装失败，继续尝试其他依赖"
+        fi
+        if ! yum -y install mysql-devel; then
+            colorEcho ${YELLOW} "mysql-devel 安装失败，继续尝试其他依赖"
+        fi
+        
+        # 检查 SQLite 是否已安装
+        if ! command -v sqlite3 &> /dev/null; then
+            colorEcho ${YELLOW} "SQLite3 not found, installing..."
+            if ! yum -y install sqlite sqlite-devel; then
+                colorEcho ${RED} "SQLite3 安装失败"
+                return 1
+            fi
+        fi
+        
+        # 检查 SQLite 版本
+        sqliteversion=$(sqlite3 -version 2>/dev/null | awk '{print $1}')
+        if [[ -z "$sqliteversion" ]]; then
+            colorEcho ${RED} "无法获取SQLite版本"
+            return 1
+        fi
+        
         function version_ge() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" == "$1"; }
         if version_ge $sqliteversion "3.9.0"; then
-	      colorEcho ${BLUE} "Sqlite3 Version ${sqliteversion} Support!"
+            colorEcho ${BLUE} "Sqlite3 Version ${sqliteversion} Support!"
         else
-		    colorEcho ${YELLOW} "Sqlite3 Version ${sqliteversion} Not Support,Install New Version..."
-                tar -zxvf "$WORK_PATH"/sqlite-autoconf-3340000.tar.gz -C /tmp
-                cd /tmp/sqlite-autoconf-3340000 || exit \
-                && ./configure --prefix=/usr/local \
-                && make && make install
-                mv /usr/bin/sqlite3  /usr/bin/sqlite3_backup
-                ln -s /usr/local/bin/sqlite3   /usr/bin/sqlite3
-                echo "/usr/local/lib" > /etc/ld.so.conf.d/sqlite3.conf
-                ldconfig
-                sqlite3 -version
-
+            colorEcho ${YELLOW} "Sqlite3 Version ${sqliteversion} Not Support,Install New Version..."
+            
+            # 检查源码包是否存在
+            if [[ ! -f "$WORK_PATH/sqlite-autoconf-3340000.tar.gz" ]]; then
+                colorEcho ${RED} "SQLite源码包不存在: $WORK_PATH/sqlite-autoconf-3340000.tar.gz"
+                colorEcho ${YELLOW} "请下载SQLite源码包或使用系统默认版本"
+                return 1
+            fi
+            
+            # 检查编译依赖
+            if ! command -v gcc &> /dev/null || ! command -v make &> /dev/null; then
+                colorEcho ${RED} "缺少编译工具 gcc 或 make"
+                if ! yum -y install gcc make; then
+                    colorEcho ${RED} "编译工具安装失败"
+                    return 1
+                fi
+            fi
+            
+            # 解压和编译 SQLite
+            if ! tar -zxvf "$WORK_PATH/sqlite-autoconf-3340000.tar.gz" -C /tmp; then
+                colorEcho ${RED} "SQLite源码包解压失败"
+                return 1
+            fi
+            
+            cd /tmp/sqlite-autoconf-3340000 || {
+                colorEcho ${RED} "进入SQLite源码目录失败"
+                return 1
+            }
+            
+            if ! ./configure --prefix=/usr/local; then
+                colorEcho ${RED} "SQLite configure 失败"
+                return 1
+            fi
+            
+            if ! make; then
+                colorEcho ${RED} "SQLite make 失败"
+                return 1
+            fi
+            
+            if ! make install; then
+                colorEcho ${RED} "SQLite make install 失败"
+                return 1
+            fi
+            
+            # 备份原有版本并创建链接
+            if [[ -f /usr/bin/sqlite3 ]]; then
+                mv /usr/bin/sqlite3 /usr/bin/sqlite3_backup
+            fi
+            ln -sf /usr/local/bin/sqlite3 /usr/bin/sqlite3
+            echo "/usr/local/lib" > /etc/ld.so.conf.d/sqlite3.conf
+            ldconfig
+            
+            # 验证安装
+            new_version=$(sqlite3 -version 2>/dev/null | awk '{print $1}')
+            if [[ -n "$new_version" ]]; then
+                colorEcho ${GREEN} "SQLite 更新成功，新版本: $new_version"
+            else
+                colorEcho ${RED} "SQLite 更新失败"
+                return 1
+            fi
         fi    
     else
         colorEcho ${RED} "The system package manager tool isn't APT or YUM, please install depend manually."
@@ -68,11 +156,33 @@ installmrdoc(){
     USER="admin"
     MM=$(cat /proc/sys/kernel/random/uuid| cut -f1 -d "-")
 
-    mkdir -p ${MRDOCDIR}
+    if ! mkdir -p ${MRDOCDIR}; then
+        colorEcho ${RED} "创建目录 ${MRDOCDIR} 失败"
+        return 1
+    fi
+    
     touch ${MRDOCDIR}/"${GIT_DIR}"pwdinfo.log
-    cd ${MRDOCDIR} && git clone ${GIT_LINK}
-    pip3 install uwsgi
-    python3 -m venv ${MRDOCDIR}/"${GIT_DIR}"_env
+    
+    if ! cd ${MRDOCDIR}; then
+        colorEcho ${RED} "进入目录 ${MRDOCDIR} 失败"
+        return 1
+    fi
+    
+    if ! git clone ${GIT_LINK}; then
+        colorEcho ${RED} "克隆代码仓库失败"
+        return 1
+    fi
+    
+    if ! pip3 install uwsgi; then
+        colorEcho ${RED} "安装 uwsgi 失败"
+        return 1
+    fi
+    
+    if ! python3 -m venv ${MRDOCDIR}/"${GIT_DIR}"_env; then
+        colorEcho ${RED} "创建虚拟环境失败"
+        return 1
+    fi
+    
     source ${MRDOCDIR}/"${GIT_DIR}"_env/bin/activate \
     && pip3 install --upgrade pip \
     && cd ${MRDOCDIR}/"${GIT_DIR}" \
@@ -81,6 +191,13 @@ installmrdoc(){
     && python3 manage.py migrate \
     && if echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('${USER}', 'www@mrdoc.fun', '${MM}')" | python manage.py shell;then printf "$(date) user:%s pwd:%s\n" "$USER" "$MM" >>/opt/jonnyan404/"${GIT_DIR}"pwdinfo.log; fi \
     && deactivate
+    
+    if [[ $? -ne 0 ]]; then
+        colorEcho ${RED} "MrDoc 安装过程中出现错误"
+        return 1
+    fi
+    
+    return 0
 }
 
 initconfig(){
@@ -361,7 +478,12 @@ main(){
             GIT_DIR=$(echo $GIT_LINK|grep -e "MrDoc"  -o)
             colorEcho  ${BLUE}  "###安装 mrdoc 开源版中...###"
         fi
-        installmrdoc
+        
+        if ! installmrdoc; then
+            colorEcho  ${RED}  "MrDoc 安装失败"
+            return 1
+        fi
+        
         colorEcho  ${BLUE}  "###初始化配置中...###"
         initconfig
         ln -sf /opt/jonnyan404/"${GIT_DIR}"fun.service /etc/systemd/system/"${GIT_DIR}"fun.service
@@ -377,6 +499,9 @@ main(){
             colorEcho  ${RED}  "部署失败,请反馈至https://gitee.com/jonnyan404/oh-my-mrdoc/issues"
             systemctl status "${GIT_DIR}"fun -l
         fi
+    else
+        colorEcho  ${RED}  "依赖安装失败"
+        return 1
     fi
 }
 
