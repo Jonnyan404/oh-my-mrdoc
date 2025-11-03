@@ -3,7 +3,8 @@
 # Author: create by jonnyan404
 # Blog:https://www.mrdoc.fun
 # Description:This script is auto install mrdoc project
-# Version:1.4
+# Version:1.5.0
+# Modified: 2025-11-03
 
 # 检查root权限
 if [[ $EUID -ne 0 ]]; then
